@@ -307,43 +307,53 @@ function formatTweetText(text) {
     }
     
     try {
-        // Nettoyer le texte - supprimer tout HTML existant qui pourrait être mal formé
         let cleanText = String(text);
         
-        // Supprimer les fragments de code CSS/HTML mal formés qui apparaissent dans le texte
-        // Pattern pour supprimer les fragments comme: #6366f1; font-weight: 600;">$1
-        // Nettoyer AVANT l'échappement HTML pour mieux capturer les patterns
+        // ÉTAPE 1: Supprimer toutes les balises HTML complètes d'abord
         cleanText = cleanText
-            // Supprimer les fragments de style CSS complets avec regex pattern (pattern le plus spécifique en premier)
-            .replace(/#6366f1;\s*font-weight:\s*600;\s*">\$1/gi, '') // Pattern exact du problème
-            .replace(/#[0-9a-fA-F]{6};\s*font-weight:\s*\d+;\s*">\$?\d*/gi, '') // Pattern général
-            .replace(/color:\s*#[0-9a-fA-F]{6};\s*font-weight:\s*\d+;\s*">\$?\d*/gi, '') // Avec "color:"
-            // Supprimer les fragments de couleur CSS seuls
-            .replace(/#[0-9a-fA-F]{6};\s*/gi, '')
-            // Supprimer les fragments font-weight seuls
-            .replace(/font-weight:\s*\d+;\s*/gi, '')
-            // Supprimer les fragments de balises fermantes avec contenu
-            .replace(/">\$?\d*/g, '')
-            .replace(/">/g, '')
-            // Supprimer les fragments de balises HTML incomplètes
-            .replace(/<[^>]*$/g, '')
-            // Supprimer les balises style et script complètes
             .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
             .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-            // Supprimer les répétitions de fragments spécifiques (avec variations)
+            .replace(/<[^>]+>/g, ''); // Supprimer toutes les balises HTML
+        
+        // ÉTAPE 2: Supprimer les fragments CSS/HTML mal formés (patterns multiples)
+        // Supprimer les répétitions complètes du pattern problématique
+        cleanText = cleanText
+            // Pattern exact répété: #6366f1; font-weight: 600;">$1
             .replace(/(#6366f1;\s*font-weight:\s*600;\s*">\$1\s*)+/gi, '')
             .replace(/(color:\s*#6366f1;\s*font-weight:\s*600;\s*">\$1\s*)+/gi, '')
-            // Supprimer les fragments isolés qui peuvent rester
-            .replace(/\$1/g, '') // Supprimer les $1 isolés
-            .replace(/span\s+style/g, '') // Supprimer les fragments "span style"
-            .replace(/color:\s*#6366f1/g, ''); // Supprimer les fragments "color: #6366f1"
+            // Patterns généraux avec variations
+            .replace(/#[0-9a-fA-F]{6};\s*font-weight:\s*\d+;\s*">\$?\d*/gi, '')
+            .replace(/color:\s*#[0-9a-fA-F]{6};\s*font-weight:\s*\d+;\s*">\$?\d*/gi, '')
+            // Fragments CSS isolés
+            .replace(/#[0-9a-fA-F]{6};\s*/gi, '')
+            .replace(/font-weight:\s*\d+;\s*/gi, '')
+            .replace(/color:\s*#[0-9a-fA-F]{6}\s*/gi, '')
+            // Fragments de balises fermantes
+            .replace(/">\$?\d*/g, '')
+            .replace(/">/g, '')
+            .replace(/&quot;&gt;\$?\d*/gi, '')
+            // Fragments isolés problématiques
+            .replace(/\$1\s*/g, '')
+            .replace(/span\s+style/gi, '');
         
-        // Nettoyer les espaces multiples et normaliser
+        // ÉTAPE 3: Nettoyer les répétitions multiples de fragments
+        // Répéter plusieurs fois pour s'assurer que tout est nettoyé
+        for (let i = 0; i < 5; i++) {
+            cleanText = cleanText
+                .replace(/(#6366f1\s*)+/gi, '')
+                .replace(/(font-weight\s*)+/gi, '')
+                .replace(/(color:\s*)+/gi, '')
+                .replace(/(\$1\s*)+/g, '')
+                .replace(/(\s*;\s*)+/g, ' ')
+                .replace(/(\s*>\s*)+/g, ' ');
+        }
+        
+        // ÉTAPE 4: Normaliser les espaces
         cleanText = cleanText
-            .replace(/\s+/g, ' ') // Normaliser les espaces multiples
+            .replace(/\s+/g, ' ')
             .trim();
         
-        // Échapper les caractères HTML pour sécurité
+        // ÉTAPE 5: Échapper les caractères HTML pour sécurité
         cleanText = cleanText
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
@@ -351,30 +361,26 @@ function formatTweetText(text) {
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
         
-        // Nettoyer les répétitions de fragments (après échappement HTML)
+        // ÉTAPE 6: Nettoyer les fragments échappés qui pourraient rester
         cleanText = cleanText
-            // Supprimer les fragments échappés
-            .replace(/(&amp;#6366f1;|#6366f1;|font-weight:\s*600;|">\$1|&quot;&gt;\$1)+/gi, '')
-            .replace(/(&amp;quot;&gt;\$?\d*)+/gi, '') // Fragments échappés
-            .replace(/&amp;\$1/gi, '') // Fragments $1 échappés
-            .replace(/&quot;&gt;\$?\d*/gi, '') // Fragments ">$1 échappés
-            // Supprimer les répétitions multiples d'espaces et fragments
-            .replace(/\s+/g, ' ') // Normaliser les espaces multiples
-            .replace(/(\s*#6366f1\s*)+/gi, '') // Répétitions de #6366f1
-            .replace(/(\s*font-weight\s*)+/gi, '') // Répétitions de font-weight
+            .replace(/(&amp;#6366f1;|&amp;quot;&amp;gt;|\$1)+/gi, '')
+            .replace(/\s+/g, ' ')
             .trim();
         
-        // Mettre en évidence les mentions de crypto (seulement sur le texte propre)
+        // ÉTAPE 7: Appliquer le formatage final (crypto, hashtags, mentions, URLs)
         return cleanText
             .replace(/\$([A-Z]{2,})/g, '<span style="color: #6366f1; font-weight: 600;">$$1</span>')
             .replace(/#([A-Za-z0-9_]+)/g, '<span style="color: #8b5cf6;">#$1</span>')
             .replace(/@([A-Za-z0-9_]+)/g, '<span style="color: #ec4899;">@$1</span>')
-            // Convertir les URLs en liens cliquables
             .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: #6366f1; text-decoration: underline;">$1</a>');
     } catch (error) {
         console.error('Erreur formatTweetText:', error);
-        // En cas d'erreur, retourner le texte nettoyé sans formatage
-        return String(text || '').replace(/<[^>]*>/g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        // En cas d'erreur, retourner le texte nettoyé basique
+        return String(text || '')
+            .replace(/<[^>]*>/g, '')
+            .replace(/#6366f1;\s*font-weight:\s*600;\s*">\$1/gi, '')
+            .replace(/\s+/g, ' ')
+            .trim();
     }
 }
 
