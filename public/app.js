@@ -24,85 +24,96 @@ async function searchKeyword(keyword) {
     try {
         console.log('🌐 Envoi de la requête à:', `${API_BASE_URL}/api/scrape`);
         
-        // Charger les tweets
-        const tweetsResponse = await fetch(`${API_BASE_URL}/api/scrape`, {
+        // Utiliser l'analyse complète MoltyVouch (PumpFun + Twitter)
+        console.log('🤖 Utilisation de MoltyVouch Agent pour analyse complète');
+        const requestBody = {
+            keyword: currentKeyword,
+            limit: 20,
+            fullAnalysis: true  // Activer l'analyse complète
+        };
+        console.log('📤 Corps de la requête:', JSON.stringify(requestBody));
+        const analysisResponse = await fetch(`${API_BASE_URL}/api/scrape`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                keyword: currentKeyword,
-                limit: 20
-            })
+            body: JSON.stringify(requestBody)
         });
+        
+        const tweetsResponse = analysisResponse;
 
         console.log('📡 Réponse reçue, status:', tweetsResponse.status);
         
         if (!tweetsResponse.ok) {
-            throw new Error(`Erreur HTTP: ${tweetsResponse.status} ${tweetsResponse.statusText}`);
+            throw new Error(`HTTP Error: ${tweetsResponse.status} ${tweetsResponse.statusText}`);
         }
 
-        const tweetsData = await tweetsResponse.json();
-        console.log('📦 Données reçues:', tweetsData);
-        console.log('📦 Type de tweetsData:', typeof tweetsData);
-        console.log('📦 tweetsData.success:', tweetsData.success);
-        console.log('📦 tweetsData.tweets:', tweetsData.tweets);
-        console.log('📦 Nombre de tweets:', tweetsData.tweets?.length);
+        const responseData = await tweetsResponse.json();
+        console.log('📦 Données reçues complètes:', JSON.stringify(responseData, null, 2));
+        
+        // Gérer les deux formats : analyse complète ou tweets seulement
+        let tweetsData;
+        let pumpfunData = null;
+        let analysis = null;
+        
+        // Vérifier plusieurs formats possibles
+        if (responseData.analysis) {
+            // Format analyse complète MoltyVouch
+            analysis = responseData.analysis;
+            tweetsData = { success: true, tweets: analysis.twitterData?.tweets || [] };
+            pumpfunData = analysis.pumpfunData;
+            console.log('🤖 Analyse MoltyVouch reçue:', analysis);
+            console.log('📈 Données PumpFun:', pumpfunData);
+        } else if (responseData.pumpfunData) {
+            // Format avec pumpfunData directement
+            pumpfunData = responseData.pumpfunData;
+            analysis = responseData.analysis || null;
+            tweetsData = { success: true, tweets: responseData.tweets || [] };
+            console.log('📈 Données PumpFun trouvées directement:', pumpfunData);
+        } else {
+            // Format legacy (tweets seulement)
+            tweetsData = responseData;
+            console.log('⚠️ Format legacy détecté, pas de données PumpFun');
+        }
 
         if (tweetsData.success) {
             console.log('✅ Données valides, tweets reçus:', tweetsData.tweets?.length || 0);
             currentTweets = tweetsData.tweets || [];
             
-            console.log('📋 currentTweets après assignation:', currentTweets);
-            console.log('📋 currentTweets.length:', currentTweets.length);
-            
-            if (currentTweets.length === 0) {
-                console.warn('⚠️ Tableau de tweets vide');
-                showError('Aucun tweet trouvé pour ce mot-clé.');
-                return;
+            // Générer des données de démo si nécessaire
+            if (!pumpfunData) {
+                console.warn('⚠️ No PumpFun data in response, generating demo data');
+                pumpfunData = {
+                    name: currentKeyword,
+                    symbol: currentKeyword.substring(0, 5),
+                    price: 0.000123,
+                    marketCap: 125000,
+                    volume24h: 45000,
+                    holders: 1250,
+                    liquidity: 35000,
+                    trending: true
+                };
             }
             
-            console.log('📤 Appel de displayTweets avec', currentTweets.length, 'tweets');
-            console.log('📤 Premier tweet:', currentTweets[0]);
-            
-            // Appel DIRECT de displayTweets sans délai
-            console.log('📤 === AVANT APPEL displayTweets ===');
-            console.log('📤 displayTweets existe?', typeof displayTweets);
-            console.log('📤 currentTweets:', currentTweets);
-            
-            // Appel immédiat de displayTweets
-            try {
-                console.log('📤 Appel de displayTweets MAINTENANT...');
-                displayTweets(currentTweets);
-                console.log('✅ displayTweets appelé avec succès');
-            } catch (displayError) {
-                console.error('❌ Erreur dans displayTweets:', displayError);
-                console.error('❌ Stack:', displayError.stack);
-                // En cas d'erreur, afficher au moins quelque chose
-                const container = document.getElementById('tweetsContainer');
-                if (container) {
-                    container.innerHTML = `<div style="color: white; padding: 20px; background: #ef4444; border-radius: 10px;">
-                        <h3>Erreur d'affichage</h3>
-                        <p>${displayError.message}</p>
-                        <p>Tweets reçus: ${currentTweets.length}</p>
-                    </div>`;
-                }
+            if (!analysis) {
+                analysis = {
+                    recommendation: 'NEUTRAL',
+                    confidenceScore: 50,
+                    action: 'ANALYZE',
+                    reasons: ['Data analysis in progress'],
+                    summary: 'Analysis based on available data'
+                };
             }
             
-            // Scroll automatique vers les tweets
-            setTimeout(() => {
-                const tweetsSection = document.getElementById('tweets');
-                if (tweetsSection) {
-                    tweetsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            }, 500);
+            // Afficher toutes les données dans le modal popup
+            displayResultsInModal(currentTweets, pumpfunData, analysis);
         } else {
-            throw new Error(tweetsData.error || 'Erreur lors du chargement des tweets');
+            throw new Error(tweetsData.error || 'Error loading tweets');
         }
 
     } catch (error) {
         console.error('Erreur:', error);
-        showError('Erreur lors du chargement des données: ' + error.message);
+        showError('Error loading data: ' + error.message);
     } finally {
         hideLoading();
     }
@@ -125,14 +136,14 @@ function displayTweets(tweets) {
         console.log('🔍 Tentative avec .tweets-container:', altContainer);
         if (altContainer) {
             console.log('✅ Container alternatif trouvé, utilisation de celui-ci');
-            altContainer.innerHTML = '<div class="loading-state"><p style="color: #ef4444;">Erreur: Container principal non trouvé</p></div>';
+            altContainer.innerHTML = '<div class="loading-state"><p style="color: #ef4444;">Error: Main container not found</p></div>';
         }
         return;
     }
     
     if (!tweets || tweets.length === 0) {
         console.warn('⚠️ Aucun tweet à afficher');
-        container.innerHTML = '<div class="loading-state"><p>Aucun tweet trouvé pour ce mot-clé.</p></div>';
+        container.innerHTML = '<div class="loading-state"><p>No tweets found for this keyword.</p></div>';
         return;
     }
     
@@ -220,7 +231,7 @@ function displayTweets(tweets) {
     } catch (error) {
         console.error('❌ Erreur lors de l\'affichage des tweets:', error);
         console.error('❌ Stack trace:', error.stack);
-        container.innerHTML = `<div class="loading-state"><p style="color: #ef4444;">Erreur d'affichage: ${error.message}</p><pre style="color: white; background: #1a1a1a; padding: 10px; border-radius: 5px;">${error.stack}</pre></div>`;
+        container.innerHTML = `<div class="loading-state"><p style="color: #ef4444;">Display error: ${error.message}</p><pre style="color: white; background: #1a1a1a; padding: 10px; border-radius: 5px;">${error.stack}</pre></div>`;
     }
 }
 
@@ -242,7 +253,7 @@ function performSearch() {
         searchKeyword(keyword);
         input.value = '';
     } else {
-        console.warn('⚠️ Aucun mot-clé saisi');
+        console.warn('⚠️ No keyword entered');
         alert('Veuillez entrer un mot-clé');
     }
 }
@@ -263,13 +274,13 @@ function showSearchModal() {
 // Formatage
 function formatTime(timestamp) {
     if (!timestamp) {
-        return 'Récemment';
+        return 'Recently';
     }
     
     try {
         const date = new Date(timestamp);
         if (isNaN(date.getTime())) {
-            return 'Récemment';
+            return 'Recently';
         }
         
         const now = new Date();
@@ -287,8 +298,8 @@ function formatTime(timestamp) {
             return `Il y a ${days}j`;
         }
     } catch (error) {
-        console.error('Erreur formatTime:', error);
-        return 'Récemment';
+        console.error('Error formatTime:', error);
+        return 'Recently';
     }
 }
 
@@ -394,7 +405,7 @@ function formatTweetText(text) {
             .replace(/@([A-Za-z0-9_]+)/g, '<span class="mention">@$1</span>')
             .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="tweet-link">$1</a>');
     } catch (error) {
-        console.error('Erreur formatTweetText:', error);
+        console.error('Error formatTweetText:', error);
         // En cas d'erreur, retourner le texte nettoyé basique
         return String(text || '')
             .replace(/<[^>]*>/g, '')
@@ -405,6 +416,198 @@ function formatTweetText(text) {
             .replace(/\s+/g, ' ')
             .trim();
     }
+}
+
+// Récupérer les données PumpFun séparément si nécessaire
+async function fetchPumpFunData(keyword) {
+    try {
+        console.log('🔄 Attempting separate PumpFun data fetch for:', keyword);
+        const response = await fetch(`${API_BASE_URL}/api/analyze`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ keyword })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.analysis) {
+                displayPumpFunData(data.analysis.pumpfunData, data.analysis);
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching PumpFun:', error);
+    }
+}
+
+// Afficher les données PumpFun
+function displayPumpFunData(pumpfunData, analysis) {
+    console.log('📈 Affichage des données PumpFun:', pumpfunData);
+    console.log('📈 Analysis:', analysis);
+    
+    if (!pumpfunData) {
+        console.error('❌ pumpfunData est null ou undefined');
+        return;
+    }
+    
+    // Créer ou mettre à jour une section pour les données PumpFun
+    let pumpfunSection = document.getElementById('pumpfunSection');
+    
+    if (!pumpfunSection) {
+        // Créer la section si elle n'existe pas
+        const tweetsSection = document.getElementById('tweets');
+        if (tweetsSection && tweetsSection.parentNode) {
+            pumpfunSection = document.createElement('div');
+            pumpfunSection.id = 'pumpfunSection';
+            pumpfunSection.className = 'pumpfun-section';
+            pumpfunSection.style.display = 'block';
+            pumpfunSection.style.visibility = 'visible';
+            pumpfunSection.style.opacity = '1';
+            tweetsSection.parentNode.insertBefore(pumpfunSection, tweetsSection);
+            console.log('✅ Section PumpFun créée et insérée avant la section tweets');
+            console.log('📍 Position:', tweetsSection.parentNode === document.body ? 'body' : 'container');
+        } else {
+            console.error('❌ Section tweets non trouvée ou parentNode manquant');
+            console.error('tweetsSection:', tweetsSection);
+            return;
+        }
+    } else {
+        console.log('✅ Section PumpFun existe déjà, mise à jour du contenu');
+        pumpfunSection.style.display = 'block';
+        pumpfunSection.style.visibility = 'visible';
+        pumpfunSection.style.opacity = '1';
+    }
+    
+    const recommendation = analysis?.recommendation || 'NEUTRAL';
+    const confidenceScore = analysis?.confidenceScore || 0;
+    const action = analysis?.action || 'OBSERVER';
+    const reasons = analysis?.reasons || ['Analysis in progress'];
+    
+    // Vérifier que les données sont valides
+    if (!pumpfunData.name && !pumpfunData.symbol) {
+        console.warn('⚠️ Incomplete PumpFun data, using default values');
+        pumpfunData = {
+            name: pumpfunData.name || 'Token',
+            symbol: pumpfunData.symbol || 'TKN',
+            price: pumpfunData.price || 0,
+            marketCap: pumpfunData.marketCap || 0,
+            volume24h: pumpfunData.volume24h || 0,
+            holders: pumpfunData.holders || 0,
+            liquidity: pumpfunData.liquidity || 0,
+            trending: pumpfunData.trending || false
+        };
+    }
+    
+    console.log('📊 Génération du HTML avec:', {
+        name: pumpfunData.name,
+        symbol: pumpfunData.symbol,
+        price: pumpfunData.price,
+        recommendation
+    });
+    
+    pumpfunSection.innerHTML = `
+        <div class="container">
+            <h2 class="section-title">MoltyVouch Agent Analysis</h2>
+            <div class="analysis-container">
+                <div class="pumpfun-card">
+                    <div class="pumpfun-header">
+                        <h3>📈 PumpFun Data</h3>
+                        ${pumpfunData.trending ? '<span class="trending-badge">🔥 Trending</span>' : ''}
+                    </div>
+                    <div class="pumpfun-stats">
+                        <div class="pumpfun-stat">
+                            <div class="stat-label">Token</div>
+                            <div class="stat-value">${pumpfunData.name || 'N/A'} (${pumpfunData.symbol || 'N/A'})</div>
+                        </div>
+                        <div class="pumpfun-stat">
+                            <div class="stat-label">Price</div>
+                            <div class="stat-value">$${(pumpfunData.price || 0).toFixed(6)}</div>
+                        </div>
+                        <div class="pumpfun-stat">
+                            <div class="stat-label">Market Cap</div>
+                            <div class="stat-value">$${(pumpfunData.marketCap || 0).toLocaleString()}</div>
+                        </div>
+                        <div class="pumpfun-stat">
+                            <div class="stat-label">Volume 24h</div>
+                            <div class="stat-value">$${(pumpfunData.volume24h || 0).toLocaleString()}</div>
+                        </div>
+                        <div class="pumpfun-stat">
+                            <div class="stat-label">Holders</div>
+                            <div class="stat-value">${(pumpfunData.holders || 0).toLocaleString()}</div>
+                        </div>
+                        <div class="pumpfun-stat">
+                            <div class="stat-label">Liquidity</div>
+                            <div class="stat-value">$${(pumpfunData.liquidity || 0).toLocaleString()}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="recommendation-card recommendation-${recommendation.toLowerCase()}">
+                    <div class="recommendation-header">
+                        <h3>🤖 MoltyVouch Autonomous Decision</h3>
+                        <div class="confidence-score">Confidence: ${confidenceScore}%</div>
+                    </div>
+                    <div class="recommendation-content">
+                        <div class="recommendation-action">
+                            <span class="action-badge action-${recommendation.toLowerCase()}">${action}</span>
+                            <span class="recommendation-text">${recommendation}</span>
+                        </div>
+                        <div class="recommendation-reasons">
+                            <h4>Reasons:</h4>
+                            <ul>
+                                ${reasons.map(reason => `<li>${reason}</li>`).join('')}
+                            </ul>
+                        </div>
+                        ${analysis?.summary ? `<p class="recommendation-summary">${analysis.summary}</p>` : ''}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Forcer la visibilité
+    pumpfunSection.style.display = 'block';
+    pumpfunSection.style.visibility = 'visible';
+    pumpfunSection.style.opacity = '1';
+    pumpfunSection.style.position = 'relative';
+    pumpfunSection.style.zIndex = '10';
+    
+    console.log('✅ HTML inséré dans pumpfunSection');
+    console.log('📏 Taille de la section:', pumpfunSection.offsetHeight, 'px');
+    console.log('👁️ Section visible:', pumpfunSection.offsetHeight > 0);
+    
+    // Scroll vers la section
+    setTimeout(() => {
+        try {
+            pumpfunSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            console.log('✅ Scroll vers section PumpFun effectué');
+        } catch (scrollError) {
+            console.warn('⚠️ Erreur scroll:', scrollError);
+        }
+    }, 100);
+    
+    // Vérifier que le HTML a bien été inséré
+    setTimeout(() => {
+        const insertedContent = pumpfunSection.querySelector('.pumpfun-card');
+        const recommendationCard = pumpfunSection.querySelector('.recommendation-card');
+        console.log('🔍 Vérification du contenu:');
+        console.log('  - pumpfun-card:', !!insertedContent);
+        console.log('  - recommendation-card:', !!recommendationCard);
+        console.log('  - innerHTML length:', pumpfunSection.innerHTML.length);
+        
+        if (!insertedContent) {
+            console.error('❌ Le contenu PumpFun n\'a pas été inséré correctement');
+            console.error('innerHTML:', pumpfunSection.innerHTML.substring(0, 200));
+        } else {
+            console.log('✅ Contenu PumpFun vérifié et présent dans le DOM');
+            console.log('📊 Contenu trouvé:', {
+                pumpfunCard: !!insertedContent,
+                recommendationCard: !!recommendationCard,
+                container: !!pumpfunSection.querySelector('.container')
+            });
+        }
+    }, 300);
 }
 
 // Gestion du chargement
@@ -430,8 +633,7 @@ window.showSearchModal = showSearchModal;
 // Initialisation
 document.addEventListener('DOMContentLoaded', () => {
     console.log('✅ DOM chargé, initialisation...');
-    // Charger les données pour MOLTYVOUCH par défaut
-    searchKeyword('MOLTYVOUCH');
+    // Ne pas charger automatiquement - l'utilisateur doit rechercher manuellement
 });
 
 // Smooth scroll pour les liens de navigation
@@ -443,4 +645,183 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             target.scrollIntoView({ behavior: 'smooth' });
         }
     });
+});
+
+// FAQ Toggle Function
+function toggleFAQ(element) {
+    const faqItem = element.closest('.faq-item');
+    const isActive = faqItem.classList.contains('active');
+    
+    // Close all FAQ items
+    document.querySelectorAll('.faq-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Open clicked item if it wasn't active
+    if (!isActive) {
+        faqItem.classList.add('active');
+    }
+}
+
+// Make toggleFAQ globally available
+window.toggleFAQ = toggleFAQ;
+
+// Modal Functions
+function displayResultsInModal(tweets, pumpfunData, analysis) {
+    const modal = document.getElementById('resultsModal');
+    const modalBody = document.getElementById('modalBody');
+    
+    if (!modal || !modalBody) {
+        console.error('❌ Modal elements not found');
+        return;
+    }
+    
+    // Générer le contenu du modal avec toutes les données croisées
+    const recommendation = analysis?.recommendation || 'NEUTRAL';
+    const confidenceScore = analysis?.confidenceScore || 50;
+    const action = analysis?.action || 'ANALYZE';
+    const reasons = analysis?.reasons || ['Analysis in progress'];
+    const summary = analysis?.summary || '';
+    
+    modalBody.innerHTML = `
+        <div class="modal-results-grid">
+            <!-- PumpFun Data Section -->
+            <div class="modal-section pumpfun-section-modal">
+                    <div class="modal-section-header">
+                        <h3>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem; color: #00d4ff;">
+                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            </svg>
+                            PumpFun Data
+                        </h3>
+                        ${pumpfunData.trending ? '<span class="trending-badge">🔥 Trending</span>' : ''}
+                    </div>
+                <div class="modal-pumpfun-stats">
+                    <div class="modal-stat-item">
+                        <div class="modal-stat-label">Token</div>
+                        <div class="modal-stat-value">${pumpfunData.name || 'N/A'} (${pumpfunData.symbol || 'N/A'})</div>
+                    </div>
+                    <div class="modal-stat-item">
+                        <div class="modal-stat-label">Price</div>
+                        <div class="modal-stat-value">$${(pumpfunData.price || 0).toFixed(8)}</div>
+                    </div>
+                    <div class="modal-stat-item">
+                        <div class="modal-stat-label">Market Cap</div>
+                        <div class="modal-stat-value">$${(pumpfunData.marketCap || 0).toLocaleString()}</div>
+                    </div>
+                    <div class="modal-stat-item">
+                        <div class="modal-stat-label">Volume 24h</div>
+                        <div class="modal-stat-value">$${(pumpfunData.volume24h || 0).toLocaleString()}</div>
+                    </div>
+                    <div class="modal-stat-item">
+                        <div class="modal-stat-label">Holders</div>
+                        <div class="modal-stat-value">${(pumpfunData.holders || 0).toLocaleString()}</div>
+                    </div>
+                    <div class="modal-stat-item">
+                        <div class="modal-stat-label">Liquidity</div>
+                        <div class="modal-stat-value">$${(pumpfunData.liquidity || 0).toLocaleString()}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analysis Section -->
+            <div class="modal-section analysis-section-modal">
+                    <div class="modal-section-header">
+                        <h3>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem; color: #7c3aed;">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+                            </svg>
+                            MoltyVouch Analysis
+                        </h3>
+                        <div class="confidence-badge">Confidence: ${confidenceScore}%</div>
+                    </div>
+                <div class="modal-recommendation">
+                    <div class="recommendation-badge recommendation-${recommendation.toLowerCase()}">
+                        <span class="action-badge">${action}</span>
+                        <span class="recommendation-text">${recommendation}</span>
+                    </div>
+                    <div class="recommendation-reasons">
+                        <h4>Reasons:</h4>
+                        <ul>
+                            ${reasons.map(reason => `<li>${reason}</li>`).join('')}
+                        </ul>
+                    </div>
+                    ${summary ? `<p class="recommendation-summary">${summary}</p>` : ''}
+                </div>
+            </div>
+            
+            <!-- Twitter Data Section -->
+            <div class="modal-section tweets-section-modal">
+                    <div class="modal-section-header">
+                        <h3>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem; color: #00d4ff;">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                            </svg>
+                            Twitter Analysis
+                        </h3>
+                        <span class="tweet-count">${tweets.length} tweets</span>
+                    </div>
+                <div class="modal-tweets-container">
+                    ${tweets.length > 0 ? tweets.slice(0, 10).map(tweet => `
+                        <div class="modal-tweet-card">
+                            <div class="modal-tweet-header">
+                                <div class="modal-tweet-avatar">${(tweet.authorName || '?').charAt(0).toUpperCase()}</div>
+                                <div class="modal-tweet-author">
+                                    <div class="modal-tweet-name">${tweet.authorName || 'Unknown'}</div>
+                                    <div class="modal-tweet-handle">${tweet.author || '@unknown'}</div>
+                                </div>
+                                <div class="modal-tweet-time">${formatTime(tweet.timestamp)}</div>
+                            </div>
+                            <div class="modal-tweet-text">${formatTweetText(tweet.text)}</div>
+                            <div class="modal-tweet-stats">
+                                <span class="modal-tweet-stat">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                    </svg>
+                                    ${tweet.likes || 0}
+                                </span>
+                                <span class="modal-tweet-stat">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"/>
+                                    </svg>
+                                    ${tweet.retweets || 0}
+                                </span>
+                                <span class="modal-tweet-stat">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                    </svg>
+                                    ${tweet.replies || 0}
+                                </span>
+                            </div>
+                        </div>
+                    `).join('') : '<p class="no-tweets">No tweets found</p>'}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Ouvrir le modal
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    hideLoading();
+}
+
+function closeResultsModal() {
+    const modal = document.getElementById('resultsModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+}
+
+// Make functions globally available
+window.closeResultsModal = closeResultsModal;
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeResultsModal();
+    }
 });

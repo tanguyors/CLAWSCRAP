@@ -5,6 +5,10 @@
       "destination": "/api/scrape"
     },
     {
+      "source": "/api/analyze",
+      "destination": "/api/analyze"
+    },
+    {
       "source": "/api/stats/:keyword",
       "destination": "/api/stats/:keyword"
     }
