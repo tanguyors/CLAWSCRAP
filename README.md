@@ -1,77 +1,95 @@
-# $MOLTYVOUCH - Site de Promotion avec Scraping Twitter
+# $MOLTYVOUCH - Site de Promotion Crypto
 
-Site web moderne pour promouvoir le token crypto $MOLTYVOUCH avec fonctionnalité de scraping Twitter en temps réel.
+Site web moderne pour promouvoir le token crypto $MOLTYVOUCH avec scraping Twitter en temps réel.
 
 ## 🚀 Fonctionnalités
 
-- **Scraping Twitter** : Récupération des tweets liés à un mot-clé crypto
-- **Statistiques en temps réel** : Analyse des métriques (likes, retweets, réponses)
-- **Interface moderne** : Design élégant et responsive
-- **Recherche dynamique** : Recherchez n'importe quel token crypto
+- **Design Ultra Moderne** : Interface avec glassmorphism et animations fluides
+- **Scraping Twitter** : Recherche et affichage de tweets en temps réel
+- **API Twitter** : Intégration avec Twitter API v2
+- **Responsive** : Design adaptatif pour mobile et desktop
+- **Logo Personnalisé** : Logo 3D intégré avec effets visuels
 
-## 📦 Installation
+## 📦 Installation Locale
 
-1. Installer les dépendances :
 ```bash
+# Installer les dépendances
 npm install
-```
 
-2. Copier le fichier d'environnement :
-```bash
-copy .env.example .env
-```
+# Configurer les variables d'environnement
+cp .env.example .env
+# Éditez .env et ajoutez vos clés API Twitter
 
-3. (Optionnel) Configurer les credentials Twitter API dans `.env` pour utiliser la vraie API Twitter
+# Lancer le serveur de développement
+npm run dev
 
-## 🎯 Utilisation
-
-Démarrer le serveur :
-```bash
+# Ou lancer en production
 npm start
 ```
 
-Ou en mode développement avec auto-reload :
+Le site sera accessible sur `http://localhost:3001`
+
+## 🌐 Déploiement sur Vercel
+
+Voir le guide complet dans [VERCEL_DEPLOY.md](./VERCEL_DEPLOY.md)
+
+### Déploiement Rapide
+
+1. **Préparer Git** :
 ```bash
-npm run dev
+git init
+git add .
+git commit -m "Initial commit"
 ```
 
-Le site sera accessible sur `http://localhost:3000`
+2. **Créer un dépôt GitHub** et pousser le code
 
-## 🔧 Configuration
+3. **Sur Vercel** :
+   - Importez votre dépôt GitHub
+   - Configurez les variables d'environnement (TWITTER_BEARER_TOKEN, etc.)
+   - Déployez !
 
-### Utiliser la vraie API Twitter
+## 🔑 Variables d'Environnement
 
-Pour utiliser l'API Twitter officielle, vous devez :
+Créez un fichier `.env` avec :
 
-1. Créer un compte développeur Twitter : https://developer.twitter.com/
-2. Créer une application et obtenir vos credentials
-3. Ajouter vos tokens dans le fichier `.env` :
-   ```
-   TWITTER_BEARER_TOKEN=votre_token_ici
-   ```
-
-4. Modifier `scraper/twitterScraper.js` pour utiliser l'API Twitter v2
-
-## 📝 Structure du Projet
-
-```
-CLAWSCRAP/
-├── server.js              # Serveur Express
-├── scraper/
-│   └── twitterScraper.js  # Logique de scraping Twitter
-├── public/
-│   ├── index.html         # Page principale
-│   ├── styles.css         # Styles CSS
-│   └── app.js            # JavaScript frontend
-├── package.json
-└── README.md
+```env
+TWITTER_BEARER_TOKEN=votre_bearer_token
+TWITTER_API_KEY=votre_api_key
+TWITTER_API_SECRET=votre_api_secret
+PORT=3001
 ```
 
-## 🎨 Personnalisation
+## 📁 Structure du Projet
 
-- Modifiez les couleurs dans `public/styles.css` (variables CSS dans `:root`)
-- Personnalisez le contenu dans `public/index.html`
-- Ajustez la logique de scraping dans `scraper/twitterScraper.js`
+```
+├── api/                 # Serverless functions pour Vercel
+│   └── index.js
+├── public/              # Frontend (fichiers statiques)
+│   ├── index.html
+│   ├── app.js
+│   ├── styles.css
+│   └── logo.png
+├── scraper/             # Logique de scraping Twitter
+│   └── twitterScraper.js
+├── server.js            # Serveur Express (local)
+├── vercel.json          # Configuration Vercel
+└── package.json
+```
+
+## 🛠️ Technologies Utilisées
+
+- **Frontend** : HTML5, CSS3 (Glassmorphism), JavaScript
+- **Backend** : Node.js, Express.js
+- **API** : Twitter API v2
+- **Scraping** : Axios, Cheerio
+- **Hébergement** : Vercel (Serverless)
+
+## 📝 Notes
+
+- Le fichier `.env` ne doit JAMAIS être commité (déjà dans `.gitignore`)
+- Pour le déploiement sur Vercel, configurez les variables d'environnement dans le dashboard
+- Les routes API sont gérées par les serverless functions sur Vercel
 
 ## 📄 Licence
 
