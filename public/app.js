@@ -680,10 +680,51 @@ function initMobileMenu() {
     mobileMenuClose.addEventListener('click', closeMenu);
     overlay.addEventListener('click', closeMenu);
     
-    // Fermer le menu lors du clic sur un lien (la navigation avec loader sera gérée par le code général)
+    // Fermer le menu lors du clic sur un lien et déclencher la navigation
     mobileMenuLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            setTimeout(closeMenu, 300);
+        link.addEventListener('click', (e) => {
+            const href = link.getAttribute('href');
+            const target = document.querySelector(href);
+            
+            if (target) {
+                // Fermer le menu immédiatement
+                closeMenu();
+                
+                // Déclencher la navigation avec le système de loader
+                e.preventDefault();
+                
+                // Vérifier si c'est la première visite de cette section
+                if (!visitedSections.has(href)) {
+                    visitedSections.add(href);
+                    
+                    // Afficher le loader
+                    showPageLoader();
+                    
+                    // Attendre un peu pour l'animation, puis scroller
+                    setTimeout(() => {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                        
+                        // Masquer le loader après le scroll
+                        setTimeout(() => {
+                            hidePageLoader();
+                        }, 800);
+                    }, 300);
+                } else {
+                    // Section déjà visitée, scroll direct
+                    setTimeout(() => {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }, 100);
+                }
+            } else {
+                // Si la section n'existe pas, fermer le menu quand même
+                closeMenu();
+            }
         });
     });
     
