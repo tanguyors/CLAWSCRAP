@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MoltyTouch - The First Autonomous Vouch Agent Based on Real Data</title>
     <meta name="description" content="MoltyTouch is the first autonomous agent integrated with PumpFun and Twitter that scrapes data simultaneously and makes investment decisions for you, 24/7.">
-    <link rel="stylesheet" href="styles.css?v=31">
+    <link rel="stylesheet" href="styles.css?v=54">
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,19 +29,61 @@
     </style>
 </head>
 <body>
+    <!-- Page de chargement -->
+    <div class="page-loader" id="pageLoader">
+        <div class="loader-content">
+            <div class="loader-logo-container">
+                <img src="logo.png" alt="Logo" class="loader-logo">
+            </div>
+            <div class="loader-text">$MOLTYVOUCH</div>
+            <div class="loader-spinner">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+            </div>
+        </div>
+    </div>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
+            <button class="burger-menu" id="burgerMenu" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
             <div class="nav-brand">
                 <img src="logo.png" alt="$MOLTYVOUCH Logo" class="nav-logo">
                 <span class="token-symbol">$MOLTYVOUCH</span>
             </div>
-            <div class="nav-links">
+            <div class="nav-links" id="navLinks">
                 <a href="#home">Home</a>
                 <a href="#story">Story</a>
                 <a href="#features">Features</a>
                 <a href="#tokenomics">Tokenomics</a>
                 <a href="#faq">FAQ</a>
+                <a href="#coming-soon">Coming Soon</a>
+            </div>
+            <div class="mobile-menu" id="mobileMenu">
+                <div class="mobile-menu-content">
+                    <div class="mobile-menu-header">
+                        <img src="logo.png" alt="$MOLTYVOUCH Logo" class="mobile-menu-logo">
+                        <span class="mobile-menu-title">$MOLTYVOUCH</span>
+                        <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Fermer">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="mobile-menu-links">
+                        <a href="#home" class="mobile-menu-link">Home</a>
+                        <a href="#story" class="mobile-menu-link">Story</a>
+                        <a href="#features" class="mobile-menu-link">Features</a>
+                        <a href="#tokenomics" class="mobile-menu-link">Tokenomics</a>
+                        <a href="#faq" class="mobile-menu-link">FAQ</a>
+                        <a href="#coming-soon" class="mobile-menu-link">Coming Soon</a>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -61,8 +103,7 @@
                 </div>
                 <h1 class="hero-title">
                     The First Autonomous Agent<br>
-                    <span class="gradient-text">$MOLTYVOUCH</span>
-                    <br>Making Decisions For You
+                    Making Decisions For You
                 </h1>
                 <p class="hero-subtitle">
                     Imagine an agent that simultaneously analyzes <strong>PumpFun</strong> and <strong>Twitter</strong> 24/7, 
@@ -116,6 +157,77 @@
                         <div class="terminal-line">
                             <span class="terminal-prompt">$</span>
                             <span class="terminal-cursor">_</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Coming Soon Section -->
+    <section id="coming-soon" class="coming-soon-section">
+        <div class="container">
+            <div class="coming-soon-content">
+                <div class="coming-soon-header">
+                    <div class="coming-soon-badge-large">Coming Soon</div>
+                    <h2 class="coming-soon-title">Your Own MoltyTouch Agent</h2>
+                    <p class="coming-soon-subtitle">
+                        The future of autonomous crypto analysis is here. Own your agent, control your destiny.
+                    </p>
+                </div>
+
+                <div class="coming-soon-features">
+                    <div class="coming-soon-feature">
+                        <div class="feature-icon-wrapper">
+                            <svg class="feature-icon-large" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                                <line x1="8" y1="21" x2="16" y2="21"/>
+                                <line x1="12" y1="17" x2="12" y2="21"/>
+                            </svg>
+                        </div>
+                        <h3>Free VPS Access</h3>
+                        <p>
+                            When you purchase $MOLTYVOUCH tokens, you get <strong>free access to a dedicated VPS</strong>. 
+                            No monthly fees, no hidden costs. Your server, your control.
+                        </p>
+                    </div>
+
+                    <div class="coming-soon-feature">
+                        <div class="feature-icon-wrapper">
+                            <svg class="feature-icon-large" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                        <h3>Your Personal Agent</h3>
+                        <p>
+                            Deploy and run <strong>your own MoltyTouch Agent</strong> on your VPS. 
+                            Customize it, configure it, make it work exactly how you want. 
+                            <strong>24/7 autonomous analysis</strong> tailored to your needs.
+                        </p>
+                    </div>
+
+                    <div class="coming-soon-feature">
+                        <div class="feature-icon-wrapper">
+                            <svg class="feature-icon-large" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                            </svg>
+                        </div>
+                        <h3>Complete Autonomy</h3>
+                        <p>
+                            Full control over your agent's parameters, analysis strategies, and decision-making algorithms. 
+                            <strong>No intermediaries, no restrictions</strong>. Your data, your rules, your profits.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="coming-soon-cta">
+                    <div class="cta-content">
+                        <h3>Ready to Own Your Future?</h3>
+                        <p>Get $MOLTYVOUCH tokens and unlock your free VPS + personal agent</p>
+                        <div class="cta-buttons">
+                            <a href="#tokenomics" class="btn-primary">Learn More</a>
+                            <a href="https://x.com/MoltyVouch" target="_blank" class="btn-secondary">Follow Updates</a>
                         </div>
                     </div>
                 </div>

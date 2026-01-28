@@ -6,6 +6,7 @@ const API_BASE_URL = window.location.origin;
 // État de l'application
 let currentKeyword = 'MOLTYVOUCH';
 let currentTweets = [];
+const visitedSections = new Set();
 
 // Fonction principale de recherche
 async function searchKeyword(keyword) {
@@ -634,15 +635,117 @@ window.showSearchModal = showSearchModal;
 document.addEventListener('DOMContentLoaded', () => {
     console.log('✅ DOM chargé, initialisation...');
     // Ne pas charger automatiquement - l'utilisateur doit rechercher manuellement
+    
+    // Menu Burger
+    initMobileMenu();
+    
+    // Marquer la section home comme visitée au chargement
+    visitedSections.add('#home');
+    if (window.location.hash) {
+        visitedSections.add(window.location.hash);
+    }
 });
 
-// Smooth scroll pour les liens de navigation
+// Menu Burger Mobile
+function initMobileMenu() {
+    const burgerMenu = document.getElementById('burgerMenu');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const mobileMenuClose = document.getElementById('mobileMenuClose');
+    const mobileMenuLinks = document.querySelectorAll('.mobile-menu-link');
+    
+    // Créer l'overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'mobile-menu-overlay';
+    overlay.id = 'mobileMenuOverlay';
+    document.body.appendChild(overlay);
+    
+    function openMenu() {
+        burgerMenu.classList.add('active');
+        mobileMenu.classList.add('active');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeMenu() {
+        burgerMenu.classList.remove('active');
+        mobileMenu.classList.remove('active');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    // Ouvrir le menu
+    burgerMenu.addEventListener('click', openMenu);
+    
+    // Fermer le menu
+    mobileMenuClose.addEventListener('click', closeMenu);
+    overlay.addEventListener('click', closeMenu);
+    
+    // Fermer le menu lors du clic sur un lien (la navigation avec loader sera gérée par le code général)
+    mobileMenuLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            setTimeout(closeMenu, 300);
+        });
+    });
+    
+    // Fermer avec Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
+            closeMenu();
+        }
+    });
+}
+
+// Gestion de la page de chargement et navigation
+const pageLoader = document.getElementById('pageLoader');
+
+function showPageLoader() {
+    if (pageLoader) {
+        pageLoader.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function hidePageLoader() {
+    if (pageLoader) {
+        pageLoader.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+}
+
+// Smooth scroll pour les liens de navigation avec page de chargement
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
+        const href = this.getAttribute('href');
+        const target = document.querySelector(href);
+        
         if (target) {
-            target.scrollIntoView({ behavior: 'smooth' });
+            // Vérifier si c'est la première visite de cette section
+            if (!visitedSections.has(href)) {
+                visitedSections.add(href);
+                
+                // Afficher le loader
+                showPageLoader();
+                
+                // Attendre un peu pour l'animation, puis scroller
+                setTimeout(() => {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    
+                    // Masquer le loader après le scroll
+                    setTimeout(() => {
+                        hidePageLoader();
+                    }, 800);
+                }, 300);
+            } else {
+                // Section déjà visitée, scroll direct
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
         }
     });
 });
