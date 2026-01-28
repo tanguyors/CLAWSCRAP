@@ -272,10 +272,13 @@ body::after {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     isolation: isolate;
+    filter: none !important;
+    pointer-events: none;
 }
 
 .mobile-menu.active {
     transform: translateX(0);
+    pointer-events: auto;
 }
 
 .mobile-menu-content {
@@ -291,6 +294,7 @@ body::after {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    pointer-events: auto;
 }
 
 .mobile-menu-header {
@@ -310,8 +314,8 @@ body::after {
 }
 
 .mobile-menu-logo {
-    width: 56px;
-    height: 56px;
+    width: 80px;
+    height: 80px;
     object-fit: contain;
     filter: none !important;
     backdrop-filter: none !important;
@@ -369,6 +373,8 @@ body::after {
     filter: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+    pointer-events: auto;
+    z-index: 10;
 }
 
 .mobile-menu-link {
@@ -392,6 +398,10 @@ body::after {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    cursor: pointer;
+    pointer-events: auto;
+    z-index: 10;
+    user-select: none;
 }
 
 .mobile-menu-link::before {
@@ -459,6 +469,13 @@ body::after {
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.mobile-menu-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
 }
 
 .mobile-menu-overlay.active {
@@ -496,8 +513,8 @@ body::after {
 }
 
 .loader-logo-container {
-    width: 120px;
-    height: 120px;
+    width: 160px;
+    height: 160px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -850,6 +867,40 @@ body::after {
     box-shadow: 0 0 50px rgba(29, 161, 242, 0.6), 0 10px 30px rgba(29, 161, 242, 0.3);
     color: white;
     text-decoration: none;
+}
+
+.btn-download {
+    background: rgba(0, 212, 255, 0.15);
+    color: #ffffff;
+    border: 1px solid rgba(0, 212, 255, 0.4);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: 0 8px 32px 0 rgba(0, 212, 255, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-download svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.btn-download:hover {
+    background: rgba(0, 212, 255, 0.25);
+    border-color: rgba(0, 212, 255, 0.6);
+    transform: translateY(-3px);
+    box-shadow: 0 0 40px rgba(0, 212, 255, 0.4), 0 10px 30px rgba(0, 212, 255, 0.2);
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.btn-download:active {
+    transform: translateY(-1px);
 }
 
 /* Hero Visual */
@@ -2498,8 +2549,8 @@ body::after {
     }
     
     .nav-logo {
-        width: 48px;
-        height: 48px;
+        width: 64px;
+        height: 64px;
     }
     
     .nav-brand .token-symbol {
@@ -2793,8 +2844,8 @@ body::after {
     }
     
     .nav-logo {
-        width: 40px;
-        height: 40px;
+        width: 80px;
+        height: 80px;
     }
     
     .nav-brand .token-symbol {
@@ -3405,6 +3456,16 @@ body::after {
     align-items: center;
     background: rgba(30, 41, 59, 0.3);
     backdrop-filter: blur(10px);
+    gap: 1rem;
+}
+
+.modal-header-actions {
+    display: flex !important;
+    align-items: center;
+    gap: 1rem;
+    visibility: visible !important;
+    opacity: 1 !important;
+    flex-shrink: 0;
 }
 
 .modal-title {
@@ -3412,6 +3473,51 @@ body::after {
     font-weight: 800;
     color: #ffffff;
     margin: 0;
+    flex: 1;
+}
+
+.modal-download-btn {
+    display: flex !important;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(0, 212, 255, 0.2) !important;
+    border: 1px solid rgba(0, 212, 255, 0.5) !important;
+    border-radius: 12px;
+    color: #ffffff !important;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative;
+    z-index: 10;
+    white-space: nowrap;
+    min-width: fit-content;
+}
+
+.modal-download-btn:hover {
+    background: rgba(0, 212, 255, 0.2);
+    border-color: rgba(0, 212, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+}
+
+.modal-download-btn:active {
+    transform: translateY(0);
+}
+
+.modal-download-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    flex-shrink: 0;
+}
+
+.modal-download-btn span {
+    white-space: nowrap;
 }
 
 .modal-close {
@@ -3792,6 +3898,24 @@ body::after {
 @media (max-width: 768px) {
     .modal-header {
         padding: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .modal-header-actions {
+        width: 100%;
+        justify-content: flex-end;
+        margin-top: 1rem;
+        order: 3;
+    }
+    
+    .modal-download-btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.85rem;
+    }
+    
+    .modal-download-btn svg {
+        width: 18px;
+        height: 18px;
     }
     
     .modal-body {

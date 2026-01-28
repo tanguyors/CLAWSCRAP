@@ -6,6 +6,7 @@ const API_BASE_URL = window.location.origin;
 // État de l'application
 let currentKeyword = 'MOLTYVOUCH';
 let currentTweets = [];
+let lastScrapeData = null; // Stocker les dernières données scrappées
 const visitedSections = new Set();
 
 // Fonction principale de recherche
@@ -653,13 +654,23 @@ function initMobileMenu() {
     const mobileMenuClose = document.getElementById('mobileMenuClose');
     const mobileMenuLinks = document.querySelectorAll('.mobile-menu-link');
     
-    // Créer l'overlay
-    const overlay = document.createElement('div');
-    overlay.className = 'mobile-menu-overlay';
-    overlay.id = 'mobileMenuOverlay';
-    document.body.appendChild(overlay);
+    // Vérifier que les éléments existent
+    if (!burgerMenu || !mobileMenu || !mobileMenuClose) {
+        console.error('❌ Menu burger elements not found');
+        return;
+    }
+    
+    // Vérifier ou créer l'overlay
+    let overlay = document.getElementById('mobileMenuOverlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'mobile-menu-overlay';
+        overlay.id = 'mobileMenuOverlay';
+        document.body.appendChild(overlay);
+    }
     
     function openMenu() {
+        console.log('📱 Opening mobile menu');
         burgerMenu.classList.add('active');
         mobileMenu.classList.add('active');
         overlay.classList.add('active');
@@ -667,6 +678,7 @@ function initMobileMenu() {
     }
     
     function closeMenu() {
+        console.log('📱 Closing mobile menu');
         burgerMenu.classList.remove('active');
         mobileMenu.classList.remove('active');
         overlay.classList.remove('active');
@@ -674,65 +686,103 @@ function initMobileMenu() {
     }
     
     // Ouvrir le menu
-    burgerMenu.addEventListener('click', openMenu);
+    burgerMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openMenu();
+    });
     
     // Fermer le menu
-    mobileMenuClose.addEventListener('click', closeMenu);
-    overlay.addEventListener('click', closeMenu);
+    mobileMenuClose.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeMenu();
+    });
+    
+    overlay.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeMenu();
+    });
     
     // Fermer le menu lors du clic sur un lien et déclencher la navigation
-    mobileMenuLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            const href = link.getAttribute('href');
-            const target = document.querySelector(href);
+    if (mobileMenuLinks.length > 0) {
+        console.log('✅ Found', mobileMenuLinks.length, 'mobile menu links');
+        mobileMenuLinks.forEach((link, index) => {
+            console.log(`📱 Setting up link ${index + 1}:`, link.getAttribute('href'));
             
-            if (target) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const href = this.getAttribute('href');
+                console.log('📱 Link clicked:', href);
+                
                 // Fermer le menu immédiatement
                 closeMenu();
                 
-                // Déclencher la navigation avec le système de loader
-                e.preventDefault();
+                // Chercher la section cible
+                const target = document.querySelector(href);
+                console.log('📱 Target element:', target ? 'Found' : 'Not found', href);
                 
-                // Vérifier si c'est la première visite de cette section
-                if (!visitedSections.has(href)) {
-                    visitedSections.add(href);
-                    
-                    // Afficher le loader
-                    showPageLoader();
-                    
-                    // Attendre un peu pour l'animation, puis scroller
-                    setTimeout(() => {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
+                if (target) {
+                    // Vérifier si c'est la première visite de cette section
+                    if (!visitedSections.has(href)) {
+                        visitedSections.add(href);
+                        console.log('📱 First visit to', href, '- showing loader');
                         
-                        // Masquer le loader après le scroll
+                        // Afficher le loader
+                        showPageLoader();
+                        
+                        // Attendre un peu pour l'animation, puis scroller
                         setTimeout(() => {
-                            hidePageLoader();
-                        }, 800);
-                    }, 300);
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                            
+                            // Masquer le loader après le scroll
+                            setTimeout(() => {
+                                hidePageLoader();
+                            }, 800);
+                        }, 300);
+                    } else {
+                        console.log('📱 Already visited', href, '- direct scroll');
+                        // Section déjà visitée, scroll direct
+                        setTimeout(() => {
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }, 100);
+                    }
                 } else {
-                    // Section déjà visitée, scroll direct
-                    setTimeout(() => {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }, 100);
+                    console.error('❌ Section not found:', href);
+                    alert('Section not found: ' + href);
                 }
-            } else {
-                // Si la section n'existe pas, fermer le menu quand même
-                closeMenu();
-            }
+            });
         });
-    });
+    } else {
+        console.error('❌ No mobile menu links found!');
+    }
     
     // Fermer avec Escape
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
             closeMenu();
         }
+    });
+    
+    console.log('✅ Mobile menu initialized:', {
+        burgerMenu: !!burgerMenu,
+        mobileMenu: !!mobileMenu,
+        mobileMenuClose: !!mobileMenuClose,
+        linksCount: mobileMenuLinks.length,
+        overlay: !!overlay
+    });
+    
+    // Vérifier que les sections existent
+    const sections = ['#home', '#story', '#features', '#tokenomics', '#faq', '#coming-soon'];
+    sections.forEach(section => {
+        const element = document.querySelector(section);
+        console.log(`📍 Section ${section}:`, element ? '✅ Found' : '❌ Not found');
     });
 }
 
@@ -809,6 +859,37 @@ function toggleFAQ(element) {
 
 // Make toggleFAQ globally available
 window.toggleFAQ = toggleFAQ;
+
+// Fonction pour télécharger les données du scraper
+function downloadScraperData(tweets, pumpfunData, analysis, keyword) {
+    const data = {
+        keyword: keyword || currentKeyword,
+        timestamp: new Date().toISOString(),
+        pumpfunData: pumpfunData || null,
+        analysis: analysis || null,
+        tweets: tweets || [],
+        summary: {
+            totalTweets: tweets?.length || 0,
+            recommendation: analysis?.recommendation || 'NEUTRAL',
+            confidenceScore: analysis?.confidenceScore || 0,
+            action: analysis?.action || 'ANALYZE'
+        }
+    };
+    
+    const jsonString = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `moltytouch-scrape-${keyword || currentKeyword}-${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Exposer la fonction globalement
+window.downloadScraperData = downloadScraperData;
 
 // Modal Functions
 function displayResultsInModal(tweets, pumpfunData, analysis) {
@@ -945,12 +1026,68 @@ function displayResultsInModal(tweets, pumpfunData, analysis) {
         </div>
     `;
     
+    // Stocker les données pour le téléchargement
+    modal.dataset.tweets = JSON.stringify(tweets);
+    modal.dataset.pumpfunData = JSON.stringify(pumpfunData);
+    modal.dataset.analysis = JSON.stringify(analysis);
+    modal.dataset.keyword = currentKeyword;
+    
+    // Stocker les dernières données pour le bouton hero
+    lastScrapeData = {
+        tweets: tweets,
+        pumpfunData: pumpfunData,
+        analysis: analysis,
+        keyword: currentKeyword
+    };
+    
     // Ouvrir le modal
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     
     hideLoading();
 }
+
+// Fonction pour télécharger les données actuelles du modal
+function downloadCurrentData() {
+    const modal = document.getElementById('resultsModal');
+    if (!modal) {
+        console.error('❌ Modal not found');
+        return;
+    }
+    
+    try {
+        const tweets = JSON.parse(modal.dataset.tweets || '[]');
+        const pumpfunData = JSON.parse(modal.dataset.pumpfunData || 'null');
+        const analysis = JSON.parse(modal.dataset.analysis || 'null');
+        const keyword = modal.dataset.keyword || currentKeyword;
+        
+        downloadScraperData(tweets, pumpfunData, analysis, keyword);
+    } catch (error) {
+        console.error('❌ Error downloading data:', error);
+        alert('Error downloading data. Please try again.');
+    }
+}
+
+// Exposer la fonction globalement
+window.downloadCurrentData = downloadCurrentData;
+
+// Fonction pour télécharger les dernières données depuis le hero
+function downloadLastScrapeData() {
+    if (!lastScrapeData) {
+        alert('No data available. Please search for a token first.');
+        return;
+    }
+    
+    downloadScraperData(
+        lastScrapeData.tweets,
+        lastScrapeData.pumpfunData,
+        lastScrapeData.analysis,
+        lastScrapeData.keyword
+    );
+}
+
+// Exposer la fonction globalement
+window.downloadLastScrapeData = downloadLastScrapeData;
 
 function closeResultsModal() {
     const modal = document.getElementById('resultsModal');
