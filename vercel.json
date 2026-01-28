@@ -1,19 +1,12 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "api/index.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/index.js"
+      "source": "/api/scrape",
+      "destination": "/api/scrape"
     },
     {
-      "src": "/(.*)",
-      "dest": "/public/$1"
+      "source": "/api/stats/:keyword",
+      "destination": "/api/stats/:keyword"
     }
   ]
 }
