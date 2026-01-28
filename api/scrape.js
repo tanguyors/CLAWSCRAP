@@ -58,7 +58,7 @@ module.exports = async (req, res) => {
                 
                 return res.json(response);
             } catch (agentError) {
-                console.error('❌ Erreur agent MoltyVouch:', agentError);
+                console.error('❌ Erreur agent MoltyTouch:', agentError);
                 // Fallback: retourner au moins les tweets + données PumpFun de fallback
                 const tweets = await twitterScraper.scrapeTweets(keyword, limit);
                 const fallbackPumpFun = require('../scraper/pumpfunScraper').getFallbackData(keyword);

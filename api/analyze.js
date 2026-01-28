@@ -24,7 +24,7 @@ module.exports = async (req, res) => {
             return res.status(400).json({ error: 'Le mot-clé est requis' });
         }
 
-        console.log(`🤖 Analyse autonome MoltyVouch pour: ${keyword}`);
+        console.log(`🤖 Analyse autonome MoltyTouch pour: ${keyword}`);
         const analysis = await moltyvouchAgent.analyzeToken(keyword);
         res.json({ success: true, analysis });
     } catch (error) {

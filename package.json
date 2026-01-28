@@ -1,5 +1,5 @@
 {
-  "name": "moltyvouch-promo",
+  "name": "moltytouch-promo",
   "version": "1.0.0",
   "description": "Site web de promotion pour le token $MOLTYVOUCH avec scraping Twitter",
   "main": "server.js",
@@ -9,7 +9,7 @@
     "test-token": "node test-twitter-token.js",
     "vercel-build": "echo 'No build step required'"
   },
-  "keywords": ["crypto", "twitter", "scraping", "moltyvouch"],
+  "keywords": ["crypto", "twitter", "scraping", "moltytouch", "moltyvouch"],
   "author": "",
   "license": "MIT",
   "dependencies": {

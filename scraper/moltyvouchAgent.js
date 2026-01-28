@@ -2,11 +2,11 @@ const twitterScraper = require('./twitterScraper');
 const pumpfunScraper = require('./pumpfunScraper');
 
 /**
- * Agent MoltyVouch - Analyse simultanée PumpFun + Twitter
+ * Agent MoltyTouch - Analyse simultanée PumpFun + Twitter
  */
 class MoltyVouchAgent {
     constructor() {
-        this.name = 'MoltyVouch Agent';
+        this.name = 'MoltyTouch Agent';
         this.version = '1.0.0';
     }
 

@@ -1,4 +1,4 @@
-# $MOLTYVOUCH - Site de Promotion Crypto
+# MoltyTouch - Site de Promotion Crypto
 
 Site web moderne pour promouvoir le token crypto $MOLTYVOUCH avec scraping Twitter en temps réel.
 

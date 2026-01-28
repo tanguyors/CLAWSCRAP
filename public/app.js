@@ -24,8 +24,8 @@ async function searchKeyword(keyword) {
     try {
         console.log('🌐 Envoi de la requête à:', `${API_BASE_URL}/api/scrape`);
         
-        // Utiliser l'analyse complète MoltyVouch (PumpFun + Twitter)
-        console.log('🤖 Utilisation de MoltyVouch Agent pour analyse complète');
+        // Utiliser l'analyse complète MoltyTouch (PumpFun + Twitter)
+        console.log('🤖 Utilisation de MoltyTouch Agent pour analyse complète');
         const requestBody = {
             keyword: currentKeyword,
             limit: 20,
@@ -508,7 +508,7 @@ function displayPumpFunData(pumpfunData, analysis) {
     
     pumpfunSection.innerHTML = `
         <div class="container">
-            <h2 class="section-title">MoltyVouch Agent Analysis</h2>
+            <h2 class="section-title">MoltyTouch Agent Analysis</h2>
             <div class="analysis-container">
                 <div class="pumpfun-card">
                     <div class="pumpfun-header">
@@ -732,7 +732,7 @@ function displayResultsInModal(tweets, pumpfunData, analysis) {
                                 <path d="M12 2L2 7l10 5 10-5-10-5z"/>
                                 <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
                             </svg>
-                            MoltyVouch Analysis
+                            MoltyTouch Analysis
                         </h3>
                         <div class="confidence-badge">Confidence: ${confidenceScore}%</div>
                     </div>

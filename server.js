@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// API pour scraper Twitter (avec support analyse complète MoltyVouch)
+// API pour scraper Twitter (avec support analyse complète MoltyTouch)
 app.post('/api/scrape', async (req, res) => {
     try {
         const { keyword, limit = 20, fullAnalysis = false } = req.body;
@@ -27,7 +27,7 @@ app.post('/api/scrape', async (req, res) => {
             return res.status(400).json({ error: 'Le mot-clé est requis' });
         }
 
-        // Si fullAnalysis est true, utiliser l'agent MoltyVouch (PumpFun + Twitter)
+        // Si fullAnalysis est true, utiliser l'agent MoltyTouch (PumpFun + Twitter)
         console.log(`📥 Requête reçue - fullAnalysis: ${fullAnalysis}, keyword: ${keyword}`);
         if (fullAnalysis) {
             console.log(`🤖 Analyse complète MoltyVouch activée pour: ${keyword}`);
@@ -51,7 +51,7 @@ app.post('/api/scrape', async (req, res) => {
                     pumpfunData: analysis.pumpfunData || {}
                 });
             } catch (agentError) {
-                console.error('❌ Erreur agent MoltyVouch:', agentError);
+                console.error('❌ Erreur agent MoltyTouch:', agentError);
                 // Fallback: retourner au moins les tweets + données PumpFun de fallback
                 const tweets = await twitterScraper.scrapeTweets(keyword, limit);
                 const pumpfunScraper = require('./scraper/pumpfunScraper');
@@ -86,7 +86,7 @@ app.post('/api/scrape', async (req, res) => {
     }
 });
 
-// API pour analyse complète MoltyVouch Agent (PumpFun + Twitter)
+// API pour analyse complète MoltyTouch Agent (PumpFun + Twitter)
 app.post('/api/analyze', async (req, res) => {
     try {
         const { keyword } = req.body;
@@ -125,7 +125,7 @@ app.get('/api/stats/:keyword', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`);
     console.log(`📊 Scraping Twitter activé pour $MOLTYVOUCH`);
-    console.log(`🤖 Agent MoltyVouch activé (PumpFun + Twitter)`);
+    console.log(`🤖 Agent MoltyTouch activé (PumpFun + Twitter)`);
     
     // Vérifier la configuration
     if (process.env.TWITTER_BEARER_TOKEN) {

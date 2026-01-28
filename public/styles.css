@@ -182,10 +182,7 @@ body::after {
 .nav-brand .token-symbol {
     font-size: 1.5rem;
     font-weight: 800;
-    background: var(--gradient-1);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #ffffff;
 }
 
 .nav-links {
