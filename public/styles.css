@@ -950,6 +950,9 @@ body::after {
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     box-shadow: 0 8px 32px 0 rgba(0, 212, 255, 0.15);
     transition: all 0.3s ease;
+    margin: 2rem auto;
+    max-width: fit-content;
+    width: auto;
 }
 
 .contract-address-container:hover {
@@ -2702,19 +2705,23 @@ body::after {
     
     .contract-address-container {
         width: 100%;
+        max-width: 100%;
         justify-content: space-between;
         padding: 1rem;
+        margin: 1.5rem auto;
     }
     
     .contract-address-value {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         flex: 1;
         text-align: center;
         word-break: break-all;
+        min-width: 0;
     }
     
     .contract-address-label {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+        flex-shrink: 0;
     }
     
     .hero-visual {
