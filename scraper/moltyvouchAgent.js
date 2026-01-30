@@ -90,55 +90,55 @@ class MoltyVouchAgent {
         // Facteurs PumpFun
         if (pumpfunData.marketCap > 100000) {
             confidenceScore += 20;
-            reasons.push('Market cap solide');
+            reasons.push('Strong market cap');
         }
         if (pumpfunData.holders > 1000) {
             confidenceScore += 15;
-            reasons.push('Base de holders importante');
+            reasons.push('Large holder base');
         }
         if (pumpfunData.volume24h > 50000) {
             confidenceScore += 15;
-            reasons.push('Volume 24h élevé');
+            reasons.push('High 24h volume');
         }
         if (pumpfunData.trending) {
             confidenceScore += 10;
-            reasons.push('Token trending sur PumpFun');
+            reasons.push('Token trending on PumpFun');
         }
         if (pumpfunData.liquidity > 20000) {
             confidenceScore += 10;
-            reasons.push('Liquidité suffisante');
+            reasons.push('Sufficient liquidity');
         }
 
         // Facteurs Twitter
         if (stats.totalTweets > 50) {
             confidenceScore += 10;
-            reasons.push('Forte activité sur Twitter');
+            reasons.push('High Twitter activity');
         }
         if (stats.totalLikes > 10000) {
             confidenceScore += 10;
-            reasons.push('Engagement Twitter élevé');
+            reasons.push('High Twitter engagement');
         }
         if (parseFloat(stats.positiveSentimentRate || 0) > 60) {
             confidenceScore += 10;
-            reasons.push('Sentiment positif dominant');
+            reasons.push('Dominant positive sentiment');
         }
 
         // Décision finale
         let recommendation = 'NEUTRAL';
-        let action = 'OBSERVER';
+        let action = 'OBSERVE';
 
         if (confidenceScore >= 70) {
             recommendation = 'STRONG_BUY';
-            action = 'INVESTIR';
+            action = 'INVEST';
         } else if (confidenceScore >= 50) {
             recommendation = 'BUY';
-            action = 'CONSIDÉRER';
+            action = 'CONSIDER';
         } else if (confidenceScore >= 30) {
             recommendation = 'NEUTRAL';
-            action = 'OBSERVER';
+            action = 'OBSERVE';
         } else {
             recommendation = 'AVOID';
-            action = 'ÉVITER';
+            action = 'AVOID';
         }
 
         const result = {
@@ -168,10 +168,10 @@ class MoltyVouchAgent {
     }
 
     generateSummary(pumpfunData, twitterData, recommendation, reasons) {
-        return `Analyse autonome terminée. ${recommendation === 'STRONG_BUY' ? 'Opportunité forte détectée' : 
-                recommendation === 'BUY' ? 'Opportunité intéressante' : 
-                recommendation === 'NEUTRAL' ? 'Situation à surveiller' : 
-                'Risque élevé détecté'}. ${reasons.slice(0, 3).join(', ')}.`;
+        return `Autonomous analysis completed. ${recommendation === 'STRONG_BUY' ? 'Strong opportunity detected' : 
+                recommendation === 'BUY' ? 'Interesting opportunity' : 
+                recommendation === 'NEUTRAL' ? 'Situation to monitor' : 
+                'High risk detected'}. ${reasons.slice(0, 3).join(', ')}.`;
     }
 
     getFallbackAnalysis(keyword) {
@@ -182,9 +182,9 @@ class MoltyVouchAgent {
             twitterData: { tweetCount: 0, stats: {} },
             confidenceScore: 0,
             recommendation: 'NEUTRAL',
-            action: 'OBSERVER',
-            reasons: ['Données limitées'],
-            summary: 'Analyse en cours, données partielles disponibles.'
+            action: 'OBSERVE',
+            reasons: ['Limited data'],
+            summary: 'Analysis in progress, partial data available.'
         };
     }
 }

@@ -14,8 +14,8 @@ async function searchKeyword(keyword) {
     console.log('🚀 searchKeyword appelé avec:', keyword);
     
     if (!keyword || keyword.trim() === '') {
-        console.warn('⚠️ Mot-clé vide');
-        alert('Veuillez entrer un mot-clé');
+        console.warn('⚠️ Empty keyword');
+        alert('Please enter a keyword');
         return;
     }
 
@@ -114,7 +114,7 @@ async function searchKeyword(keyword) {
         }
 
     } catch (error) {
-        console.error('Erreur:', error);
+        console.error('Error:', error);
         showError('Error loading data: ' + error.message);
     } finally {
         hideLoading();
@@ -231,7 +231,7 @@ function displayTweets(tweets) {
         console.log('🎨 ========== displayTweets FIN ==========');
         
     } catch (error) {
-        console.error('❌ Erreur lors de l\'affichage des tweets:', error);
+        console.error('❌ Error displaying tweets:', error);
         console.error('❌ Stack trace:', error.stack);
         container.innerHTML = `<div class="loading-state"><p style="color: #ef4444;">Display error: ${error.message}</p><pre style="color: white; background: #1a1a1a; padding: 10px; border-radius: 5px;">${error.stack}</pre></div>`;
     }
@@ -256,7 +256,7 @@ function performSearch() {
         input.value = '';
     } else {
         console.warn('⚠️ No keyword entered');
-        alert('Veuillez entrer un mot-clé');
+        alert('Please enter a keyword');
     }
 }
 
@@ -408,7 +408,7 @@ function formatTweetText(text) {
             .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="tweet-link">$1</a>');
     } catch (error) {
         console.error('Error formatTweetText:', error);
-        // En cas d'erreur, retourner le texte nettoyé basique
+        // In case of error, return basic cleaned text
         return String(text || '')
             .replace(/<[^>]*>/g, '')
             .replace(/#6366f1;\s*font-weight:\s*600;\s*">\$1/gi, '')
@@ -585,7 +585,7 @@ function displayPumpFunData(pumpfunData, analysis) {
             pumpfunSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             console.log('✅ Scroll vers section PumpFun effectué');
         } catch (scrollError) {
-            console.warn('⚠️ Erreur scroll:', scrollError);
+            console.warn('⚠️ Scroll error:', scrollError);
         }
     }, 100);
     
