@@ -937,6 +937,76 @@ body::after {
     transform: translateY(-1px);
 }
 
+/* Contract Address Display */
+.contract-address-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    background: rgba(15, 17, 23, 0.6);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: 12px;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: 0 8px 32px 0 rgba(0, 212, 255, 0.15);
+    transition: all 0.3s ease;
+}
+
+.contract-address-container:hover {
+    border-color: rgba(0, 212, 255, 0.5);
+    box-shadow: 0 8px 32px 0 rgba(0, 212, 255, 0.25);
+}
+
+.contract-address-label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: rgba(0, 212, 255, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.contract-address-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: rgba(124, 58, 237, 1);
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.02em;
+    user-select: all;
+    cursor: text;
+}
+
+.contract-copy-btn {
+    background: transparent;
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: rgba(0, 212, 255, 1);
+    transition: all 0.3s ease;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.contract-copy-btn:hover {
+    background: rgba(0, 212, 255, 0.15);
+    border-color: rgba(0, 212, 255, 0.6);
+    transform: scale(1.1);
+    color: #ffffff;
+}
+
+.contract-copy-btn:active {
+    transform: scale(0.95);
+}
+
+.contract-copy-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
 /* Hero Visual */
 .hero-visual {
     flex: 1;
@@ -2628,6 +2698,23 @@ body::after {
     .hero-actions .btn {
         width: 100%;
         justify-content: center;
+    }
+    
+    .contract-address-container {
+        width: 100%;
+        justify-content: space-between;
+        padding: 1rem;
+    }
+    
+    .contract-address-value {
+        font-size: 0.8rem;
+        flex: 1;
+        text-align: center;
+        word-break: break-all;
+    }
+    
+    .contract-address-label {
+        font-size: 0.85rem;
     }
     
     .hero-visual {

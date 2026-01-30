@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MoltyTouch - The First Autonomous Vouch Agent Based on Real Data</title>
     <meta name="description" content="MoltyTouch is the first autonomous agent integrated with PumpFun and Twitter that scrapes data simultaneously and makes investment decisions for you, 24/7.">
-    <link rel="stylesheet" href="styles.css?v=79">
+    <link rel="stylesheet" href="styles.css?v=80">
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -127,16 +127,16 @@
                         </svg>
                         Download
                     </a>
-                    <a href="https://solscan.io/token/FUFkXXfWbpp3GWhWuE2i97J2qe1UVqkVFnnfX37B39R7" target="_blank" rel="noopener noreferrer" class="btn btn-contract" id="heroContractBtn" title="View Token Contract">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                            <polyline points="10 9 9 9 8 9"></polyline>
-                        </svg>
-                        Token Contract
-                    </a>
+                    <div class="contract-address-container">
+                        <div class="contract-address-label">CA:</div>
+                        <div class="contract-address-value" id="contractAddress">FUFkXXfWbpp3GWhWuE2i97J2qe1UVqkVFnnfX37B39R7</div>
+                        <button class="contract-copy-btn" id="contractCopyBtn" onclick="copyContractAddress()" title="Copy contract address">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="hero-visual">
@@ -502,6 +502,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=32"></script>
+    <script src="app.js?v=33"></script>
 </body>
 </html>

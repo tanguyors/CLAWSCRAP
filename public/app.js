@@ -1089,6 +1089,34 @@ function downloadLastScrapeData() {
 // Exposer la fonction globalement
 window.downloadLastScrapeData = downloadLastScrapeData;
 
+// Fonction pour copier l'adresse du contrat
+function copyContractAddress() {
+    const contractAddress = 'FUFkXXfWbpp3GWhWuE2i97J2qe1UVqkVFnnfX37B39R7';
+    const copyBtn = document.getElementById('contractCopyBtn');
+    
+    navigator.clipboard.writeText(contractAddress).then(() => {
+        // Feedback visuel
+        const originalHTML = copyBtn.innerHTML;
+        copyBtn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        `;
+        copyBtn.style.color = '#00ff00';
+        
+        setTimeout(() => {
+            copyBtn.innerHTML = originalHTML;
+            copyBtn.style.color = '';
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy contract address');
+    });
+}
+
+// Exposer la fonction globalement
+window.copyContractAddress = copyContractAddress;
+
 function closeResultsModal() {
     const modal = document.getElementById('resultsModal');
     if (modal) {
